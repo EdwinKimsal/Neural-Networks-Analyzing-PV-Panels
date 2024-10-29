@@ -1,0 +1,2 @@
+/SegNet/CamVid/val/4_5.png /SegNet/CamVid/valannot/4_5.png
+/SegNet/CamVid/val/7_4.png /SegNet/CamVid/valannot/7_4.png
