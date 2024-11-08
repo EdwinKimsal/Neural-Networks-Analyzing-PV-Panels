@@ -2,7 +2,6 @@
 from PIL import Image
 import sys
 import os
-import cv2
 
 # Customizable vars
 original_sub_img_side = 625  # original_sub_img_side must be equally divisible by this var)
@@ -18,49 +17,42 @@ script_directory = os.path.dirname(os.path.abspath(sys.argv[0]))
 input_file_path = os.path.join(script_directory, input_file)
 output_file_path = os.path.join(script_directory, output_file)
 
+
 # img_divider Function
 def img_divider(file_list, img_per_row, final_sub_img_side):
 
     # Iterate through each file in file_list
     for file in file_list:
+        # Print the img being worked on
+        print(file)
 
-        if file.endswith(".json.png"):
+        # Iterate for the img_y
+        for i in range(img_per_row):
 
-            # Print the img being worked on
-            print(file)
+            # Iterate for the img_x
+            for j in range(img_per_row):
 
-            # Set new_path based on the designated output_file and the current img
-            new_path = os.path.join(output_file, file)
+                # Set file name
+                file_name = f"{i}_{j}.{final_file_type}"
 
-            # Check if the folder already exists
-            if not os.path.exists(new_path):
-                os.makedirs(new_path)
+                # Open image
+                im = Image.open(os.path.join(input_file_path, file))
 
-            # Iterate for the img_y
-            for i in range(img_per_row):
+                # Crop THEN Resize (sub) img
+                # .crop((left, top, right, bottom))
+                im = im.crop((j * original_sub_img_side, i * original_sub_img_side, j * original_sub_img_side + original_sub_img_side, i * original_sub_img_side + original_sub_img_side))
+                im = im.resize((final_sub_img_side, final_sub_img_side))
 
-                # Iterate for the img_x
-                for j in range(img_per_row):
+                # Save (sub) img as 8-bit
+                # If ends with .json.png convert to 8 bit
+                if file.endswith(".json.png"):
+                    im.convert('P').save(os.path.join(script_directory, output_file, f"{file.replace(".png.jpg", "")}_{file_name}"))
 
-                    # Set file name
-                    file_name = f"{i}_{j}.{final_file_type}"
+                # Save (sub) image as 24-bit
+                # Else if ends with .png
+                elif file.endswith(".png"):
+                    im.save(os.path.join(script_directory, output_file, f"{file.replace(".png", "")}_{file_name}"))
 
-                    # Open image
-                    im = Image.open(os.path.join(input_file_path, file))
-
-                    # Crop THEN Resize (sub) img
-                    # .crop((left, top, right, bottom))
-                    im = im.crop((j * original_sub_img_side, i * original_sub_img_side, j * original_sub_img_side + original_sub_img_side, i * original_sub_img_side + original_sub_img_side))
-                    im = im.resize((final_sub_img_side, final_sub_img_side))
-
-                    # Save (sub) img
-                    # If ends with .json.png convert to 8 bit
-                    if file.endswith(".json.png"):
-                        print(type(im))
-                        im = cv2.convertScaleAbs(im, alpha=0.03)
-
-                    # Store image
-                    im.save(os.path.join(new_path, file_name))
 
 # calculate_vars Function
 def calc_vars(file_list, img_side):
@@ -85,6 +77,7 @@ def calc_vars(file_list, img_side):
 
     # Call img_divider Function
     img_divider(file_list, img_per_row, final_sub_img_side)
+
 
 # Start function
 def start():
@@ -111,6 +104,7 @@ def start():
 
     # Call calc_vars
     calc_vars(file_list, img_side)
+
 
 # Call Start Function
 start()
