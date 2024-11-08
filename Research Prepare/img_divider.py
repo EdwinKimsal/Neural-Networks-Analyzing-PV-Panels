@@ -46,12 +46,12 @@ def img_divider(file_list, img_per_row, final_sub_img_side):
                 # Save (sub) img as 8-bit
                 # If ends with .json.png convert to 8 bit
                 if file.endswith(".json.png"):
-                    im.convert('P').save(os.path.join(script_directory, output_file, f"{file.replace(".png.jpg", "")}_{file_name}"))
+                    im.convert('P').save(os.path.join(script_directory, output_file, f"{file.replace(".json.png", "_mask")}_{file_name}"))
 
                 # Save (sub) image as 24-bit
                 # Else if ends with .png
                 elif file.endswith(".png"):
-                    im.save(os.path.join(script_directory, output_file, f"{file.replace(".png", "")}_{file_name}"))
+                    im.save(os.path.join(script_directory, output_file, f"{file.replace(".png", "_img")}_{file_name}"))
 
 
 # calculate_vars Function
