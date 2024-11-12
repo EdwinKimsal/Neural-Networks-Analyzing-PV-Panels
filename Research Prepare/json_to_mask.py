@@ -77,7 +77,7 @@ for f in data:
             # If the polygon is a solar panel
             if type == 'pv':
                 # Draw a white polygon
-                draw.polygon(result, fill="white")
+                draw.polygon(result, fill=(255, 255, 255))
 
             # If the polygon is NOT a solar panel
             elif type == 'notpv':
