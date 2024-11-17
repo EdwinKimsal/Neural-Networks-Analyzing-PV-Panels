@@ -96,7 +96,7 @@ def main():
     dataset_folder = "Datasets"
 
     # Input and Output File
-    input_file = "Output Split Images"
+    input_file = "Final Output Split Images"
     test_file = "Test Set"
     test_mask_file = "Test Mask Set"
     train_file = "Train Set"

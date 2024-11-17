@@ -4,16 +4,16 @@ import cv2
 
 # Function to remove images
 def add(input_path, output_path, file_mask, file_img):
-    # Add file
-    os.save(os.path.join(output_path, file_mask))
-    # Print file removed
+    # Open and Add image
+    img = cv2.imread(os.path.join(input_path, file_img))
+    cv2.imwrite(os.path.join(output_path, file_img), img)
+
+    # Open and Add Mask
+    img = cv2.imread(os.path.join(input_path, file_mask))
+    cv2.imwrite(os.path.join(output_path, file_mask), img)
+
+    # Print mask added
     print("Added: " + file_mask)
-
-    # Remove file
-    os.save(os.path.join(output_path, file_img))
-
-    # Print file removed
-    print("Added: " + file_img)
 
 
 # Main function
@@ -45,7 +45,7 @@ def main():
     # Iterate through all the files in json_list
     for i in range(len(mask_list)):
         # If all pixels in file are black, remove file
-        if cv2.imread(os.path.join(input_path, mask_list[i])).all() != 0:
+        if cv2.imread(os.path.join(input_path, mask_list[i])).any() != 0:
             add(input_path, output_path, mask_list[i], img_list[i])
 
 
