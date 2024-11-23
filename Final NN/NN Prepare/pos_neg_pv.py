@@ -6,10 +6,10 @@ import cv2
 import os
 
 # pos_neg_sep function
-def pos_neg_sep(file_path_mask, sum_min):
+def pos_neg_sep(file_path_mask, sum_min, pos_file, neg_file):
     # Open pos and neg files to write
-    pos = open(os.path.join(".", "NY-Q", "positive_tiles.txt"), "w")
-    neg = open(os.path.join(".", "NY-Q", "negative_tiles.txt"), "w")
+    pos = open(os.path.join(".", "NY-Q", "tiles", pos_file), "w")
+    neg = open(os.path.join(".", "NY-Q", "tiles", neg_file), "w")
 
     # Iterate through each img
     for f in os.listdir(file_path_mask):
@@ -33,9 +33,9 @@ def pos_neg_sep(file_path_mask, sum_min):
 
 
 # Randomly order function
-def random_ord(num_imgs):
+def random_ord(num_imgs, pos_file):
     # Open pos file to read
-    pos = open(os.path.join(".", "NY-Q", "positive_tiles.txt"), "r")
+    pos = open(os.path.join(".", "NY-Q", "tiles", pos_file), "r")
 
     # Set an empty list
     img_list = []
@@ -54,7 +54,7 @@ def random_ord(num_imgs):
 # Create dataset function
 def create_dataset(img_list, num, out_file):
     # Open out_file to write
-    with open(out_file, "w") as f:
+    with open(os.path.join(".", "NY-Q", "tiles", out_file), "w") as f:
         # Iterate through img_list for the designated amount of times
         for img in img_list[:num]:
             f.write(img)
@@ -64,41 +64,42 @@ def create_dataset(img_list, num, out_file):
 
 
 # Data separation function
-def data_calc(img_list, total_num, test_per, train_per, seed):
+def data_calc(total_num, test_per, train_per):
     # Calculate amount of imgs
     test_num = int(total_num * test_per)
     train_num = int(total_num * train_per)
 
-    # # Find cmd
-    # cmd =
-
-    # Create each dataset with designated num of imgs
-    img_list = create_dataset(img_list, test_num, os.path.join(f"test_{str(seed)}.txt"))
-    img_list = create_dataset(img_list, train_num, os.path.join(f"train_{str(seed)}.txt"))
-    create_dataset(img_list, total_num - test_num - train_num, os.path.join(f"val_{str(seed)}.txt"))
+    return test_num, train_num
 
 
 # Main function
 def main():
     # File path(s)
     file_path_mask = "./NY-Q/tiles/mask"
+    pos_file = "positive_tiles.txt"
+    neg_file = "negative_tiles.txt"
 
     # Customizable vars
     sum_min = 100 # Min pv pixels needed
     seed = 2024 # Seed value to replicate data
     test_per = .1 # Percentage of test imgs in decimal form
     train_per = .8 # Percentage of train imgs in decimal form
-    total_num = 250 # Total num of imgs
+    total_num = 100 # Total num of imgs
 
     # Call pos_neg_sep function
-    # pos_neg_sep(file_path_mask, sum_min)
+    pos_neg_sep(file_path_mask, sum_min, pos_file, neg_file)
 
     # Call random_ord function
-    img_list = random_ord(total_num)
+    img_list = random_ord(total_num, pos_file)
     print(len(img_list))
 
     # Call data_sep function
-    data_calc(img_list, total_num, test_per, train_per, seed)
+    test_num, train_num = data_calc(total_num, test_per, train_per)
+
+    # Create each dataset with designated num of imgs
+    img_list = create_dataset(img_list, test_num, os.path.join(f"test_{str(seed)}.txt"))
+    img_list = create_dataset(img_list, train_num, os.path.join(f"train_{str(seed)}.txt"))
+    create_dataset(img_list, total_num - test_num - train_num, os.path.join(f"val_{str(seed)}.txt"))
 
 
 # Call main function
