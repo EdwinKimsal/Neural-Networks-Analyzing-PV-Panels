@@ -14,16 +14,25 @@ if __name__ == '__main__':
 
     import segmentation_models_pytorch as smp
     import pytorch_lightning as pl
+    from lightning import Trainer, LightningModule
 
     # Root path to the dataset
     DATA_DIR = r'.\NY-Q\tiles'
+
+    # File with the list of images to use for testing, training, and validation
+    test = os.path.join(DATA_DIR, 'test_2024.txt')
+    train = os.path.join(DATA_DIR, 'train_2024.txt')
+    validate = os.path.join(DATA_DIR, 'val_2024.txt')
+
+    # File for checkpoint
+    check_point_file = os.path.join(".", 'lightning_logs', 'version_8', 'checkpoints', 'epoch=9-step=400.ckpt')
 
     # Size to crop the images during augmentation
     CROPSIZE = 576  # Must be divisible by 32
 
     # Some training hyperparameters
-    BATCH_SIZE = 1
-    EPOCHS = 2
+    BATCH_SIZE = 2
+    EPOCHS = 10
 
     # Paths to the images and masks in the dataset
     # Training
@@ -149,8 +158,8 @@ if __name__ == '__main__':
     # dataset = Dataset(
     #     x_train_dir,
     #     y_train_dir,
-    #     os.path.join(DATA_DIR, 'train_img_42.txt'),
-    #     os.path.join(DATA_DIR, 'train_mask_42.txt'),
+    #     train,
+    #     train,
     #     augmentation=None
     # )
     # image, mask = dataset[0]
@@ -233,8 +242,8 @@ if __name__ == '__main__':
     augmented_dataset = Dataset(
         x_train_dir,
         y_train_dir,
-        os.path.join(DATA_DIR, 'train_img_42.txt'),
-        os.path.join(DATA_DIR, 'train_mask_42.txt'),
+        train,
+        train,
         augmentation=get_training_augmentation(),
     )
 
@@ -247,8 +256,8 @@ if __name__ == '__main__':
     train_dataset = Dataset(
         x_train_dir,
         y_train_dir,
-        os.path.join(DATA_DIR, 'train_img_42.txt'),
-        os.path.join(DATA_DIR, 'train_mask_42.txt'),
+        train,
+        train,
         augmentation=get_training_augmentation(),
     )
 
@@ -256,15 +265,15 @@ if __name__ == '__main__':
     valid_dataset = Dataset(
         x_valid_dir,
         y_valid_dir,
-        os.path.join(DATA_DIR, 'valid_img_42.txt'),
-        os.path.join(DATA_DIR, 'valid_mask_42.txt'),
+        validate,
+        validate,
         augmentation=get_validation_augmentation(),
     )
     test_dataset = Dataset(
         x_test_dir,
         y_test_dir,
-        os.path.join(DATA_DIR, 'test_img_42.txt'),
-        os.path.join(DATA_DIR, 'test_mask_42.txt'),
+        test,
+        test,
         augmentation=get_validation_augmentation(),
     )
 
@@ -436,13 +445,26 @@ if __name__ == '__main__':
     model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
     # model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
 
-    trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
+    # # Training
+    # trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
+    #
+    # trainer.fit(
+    #     model,
+    #     train_dataloaders=train_loader,
+    #     val_dataloaders=valid_loader,
+    # )
+    # #
 
-    trainer.fit(
-        model,
-        train_dataloaders=train_loader,
-        val_dataloaders=valid_loader,
+    # Load Checkpoint
+    from pytorch_lightning.callbacks import ModelCheckpoint
+
+    checkpoint_callback = ModelCheckpoint(
+        dirpath="lightning_logs/version_8/checkpoints/",  # Directory to save checkpoints
+        filename="epoch=9-step=400.ckpt",  # Filename format
+        mode="max",  # Whether to minimize or maximize the metric
     )
+    trainer = pl.Trainer(callbacks=[checkpoint_callback])
+    #
 
     # run validation dataset
     valid_metrics = trainer.validate(model, dataloaders=valid_loader, verbose=False)
