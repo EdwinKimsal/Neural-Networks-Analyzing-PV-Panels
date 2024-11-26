@@ -16,7 +16,7 @@ def main():
         byte_size = os.path.getsize(os.path.join(file_path, file))
 
         # Call remove function if byte size is 97134
-        if byte_size == 97134:
+        if byte_size == 97134: # 97134 bytes means there is no data in the file
             os.remove(os.path.join(file_path, file))
             print(f"{file} has been removed")
 
