@@ -12,8 +12,6 @@ def main():
 
     # Write starting index
     with open(out_file, "w") as f:
-        f.write("0\n")
-
         # Write each file to jp2_list.txt
         for file in files:
             f.write(f"{file}\n")

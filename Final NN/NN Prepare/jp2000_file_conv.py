@@ -14,7 +14,7 @@ def convert(file, input_file_path, output_file_path):
 def main():
     # Files
     input_file = "Four Channel ZIP Files"
-    output_file = "JP2000 Files"
+    output_file = "JP2000_PNG Files"
 
     # File paths
     cwd = os.getcwd()
@@ -37,8 +37,8 @@ def main():
 
         # If the file ends with .jp2 add it to output Folder
         if file.endswith(".jp2") == True:
-            convert(file, input_file_path, output_file_path)
             print(file)
+            convert(file, input_file_path, output_file_path)
 
 
 # Call main function
