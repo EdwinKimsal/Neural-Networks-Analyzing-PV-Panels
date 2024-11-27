@@ -1,6 +1,5 @@
 # Imports
 from PIL import Image
-import keyboard
 import os
 
 # Customizable (global) vars
