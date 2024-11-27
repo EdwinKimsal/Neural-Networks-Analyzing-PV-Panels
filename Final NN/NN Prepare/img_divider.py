@@ -6,6 +6,7 @@ import os
 # Customizable (global) vars
 original_sub_img_side = 576  # original_sub_img_side must be equally divisible by this var)
 modulo_num = 32
+input_txt = "jp2_list.txt"
 input_file = "JP2000_PNG Files"
 output_file = "jp2"
 
@@ -13,16 +14,19 @@ output_file = "jp2"
 cwd = os.getcwd()
 
 # Set file_paths
+input_txt_path = os.path.join(cwd, "NY-Q", "tiles", input_txt)
 input_file_path = os.path.join(cwd, input_file)
 
 # Final file type
 final_file_type = "png"
 
 # write_file Function
-def write_file(file_list):
-    with open(input_file_path, "w") as f:
+def write_file(file_list, img_per_row, final_sub_img_side):
+    with open(input_txt_path, "w") as f:
         for line in file_list:
             f.write(f"{line}\n")
+
+    return img_divider(file_list, img_per_row, final_sub_img_side)
 
 
 # img_divider Function
@@ -46,9 +50,6 @@ def img_divider(file_list, img_per_row, final_sub_img_side):
             # Set file name
             file_name = f"{i*8+j}.{final_file_type}" # i*8+j is 0 to 63
 
-            if keyboard.is_pressed('q'):
-                return file_list
-
             # Open image
             im = Image.open(os.path.join(input_file_path, file))
 
@@ -68,7 +69,7 @@ def img_divider(file_list, img_per_row, final_sub_img_side):
                 im.save(os.path.join(cwd, output_file, f"{file.replace(".png", "")}_{file_name}"))
 
     # Recall function removing first ele
-    return img_divider(file_list[1:], img_per_row, final_sub_img_side)
+    return write_file(file_list[1:], img_per_row, final_sub_img_side)
 
 
 # calculate_vars Function
@@ -101,13 +102,10 @@ def main():
     file_list = []
 
     # Iterate through file_path
-    for (root, dirs, file) in os.walk(input_file_path):
-
-        # Iterate through each file
-        for f in file:
-
+    with open(input_txt_path, "r") as f:
+        for line in f:
             # Append file to file_list
-            file_list.append(f)
+            file_list.append(line.replace("\n", ""))
 
     # Print the number of files in file_list
     print(len(file_list))
