@@ -3,7 +3,7 @@ from PIL import Image
 import os
 
 # Customizable (global) vars
-original_sub_img_side = 576  # original_sub_img_side must be equally divisible by this var)
+original_sub_img_side = 625  # original_sub_img_side must be equally divisible by this var)
 modulo_num = 32
 input_txt = "jp2_list.txt"
 input_file = "JP2000_PNG Files"
