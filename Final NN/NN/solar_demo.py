@@ -445,26 +445,26 @@ if __name__ == '__main__':
     model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
     # model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
 
-    # # Training
-    # trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
-    #
-    # trainer.fit(
-    #     model,
-    #     train_dataloaders=train_loader,
-    #     val_dataloaders=valid_loader,
-    # )
-    # #
+    # Training
+    trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
 
-    # Load Checkpoint
-    from pytorch_lightning.callbacks import ModelCheckpoint
-
-    checkpoint_callback = ModelCheckpoint(
-        dirpath="lightning_logs/version_8/checkpoints/",  # Directory to save checkpoints
-        filename="epoch=9-step=400.ckpt",  # Filename format
-        mode="max",  # Whether to minimize or maximize the metric
+    trainer.fit(
+        model,
+        train_dataloaders=train_loader,
+        val_dataloaders=valid_loader,
     )
-    trainer = pl.Trainer(callbacks=[checkpoint_callback])
+
+    # #
+    # # Load Checkpoint
+    # from pytorch_lightning.callbacks import ModelCheckpoint
     #
+    # checkpoint_callback = ModelCheckpoint(
+    #     dirpath="lightning_logs/version_8/checkpoints/",  # Directory to save checkpoints
+    #     filename="epoch=9-step=400.ckpt",  # Filename format
+    #     mode="max",  # Whether to minimize or maximize the metric
+    # )
+    # trainer = pl.Trainer(callbacks=[checkpoint_callback])
+    # #
 
     # run validation dataset
     valid_metrics = trainer.validate(model, dataloaders=valid_loader, verbose=False)
