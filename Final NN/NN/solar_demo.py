@@ -15,6 +15,7 @@ if __name__ == '__main__':
     import segmentation_models_pytorch as smp
     import pytorch_lightning as pl
     from lightning import Trainer, LightningModule
+    from pytorch_lightning.callbacks import ModelCheckpoint # For loading checkpoints
 
     # Root path to the dataset
     DATA_DIR = r'.\NY-Q\tiles'
@@ -31,8 +32,8 @@ if __name__ == '__main__':
     CROPSIZE = 576  # Must be divisible by 32
 
     # Some training hyperparameters
-    BATCH_SIZE = 2
-    EPOCHS = 10
+    BATCH_SIZE = 10
+    EPOCHS = 2
 
     # Paths to the images and masks in the dataset
     # Training
@@ -309,7 +310,7 @@ if __name__ == '__main__':
             # preprocessing parameteres for image
             # TODO Does the 3 equate to the # of channels?
             params = smp.encoders.get_preprocessing_params(encoder_name)
-            self.register_buffer("std", torch.tensor(params["std"]).view(1, 3, 1, 1))
+            self.register_buffer("std", torch.tensor(params["std"]).view (1, 3, 1, 1))
             self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 3, 1, 1))
 
             # for image segmentation dice loss could be the best first choice
@@ -442,29 +443,31 @@ if __name__ == '__main__':
             }
 
 
-    model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
+    # Models
+    # Model for Training
+    # model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
+    # Model for ???
     # model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
-
-    # Training
-    trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
-
-    trainer.fit(
-        model,
-        train_dataloaders=train_loader,
-        val_dataloaders=valid_loader,
+    # Model for Trained Checkpoint
+    model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
+                                            out_classes=OUT_CLASSES)
+    # Load checkpoint
+    checkpoint_callback = ModelCheckpoint(
+        dirpath='lightning_logs/version_8/checkpoints/',
+        filename=check_point_file,
+        save_top_k=1,
+        mode='max'
     )
 
-    # #
-    # # Load Checkpoint
-    # from pytorch_lightning.callbacks import ModelCheckpoint
-    #
-    # checkpoint_callback = ModelCheckpoint(
-    #     dirpath="lightning_logs/version_8/checkpoints/",  # Directory to save checkpoints
-    #     filename="epoch=9-step=400.ckpt",  # Filename format
-    #     mode="max",  # Whether to minimize or maximize the metric
+    # Set trainer
+    trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
+
+    # Trains Neural Network
+    # trainer.fit(
+    #     model,
+    #     train_dataloaders=train_loader,
+    #     val_dataloaders=valid_loader,
     # )
-    # trainer = pl.Trainer(callbacks=[checkpoint_callback])
-    # #
 
     # run validation dataset
     valid_metrics = trainer.validate(model, dataloaders=valid_loader, verbose=False)
