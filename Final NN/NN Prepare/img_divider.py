@@ -4,7 +4,6 @@ import os
 
 # Customizable (global) vars
 original_sub_img_side = 625  # original_sub_img_side must be equally divisible by this var)
-modulo_num = 32
 input_txt = "jp2_list.txt"
 input_file = "JP2000_PNG Files"
 output_file = "jp2"
@@ -77,19 +76,7 @@ def calc_vars(file_list, img_side):
     img_per_row = img_side // original_sub_img_side
 
     # Calculate final_sub_img
-    # If no need to scale
-    if (original_sub_img_side % modulo_num == 0):
-
-        # Set side len of the final_sub_img
-        final_sub_img_side = original_sub_img_side
-
-    # Else...
-    else:
-        # Calculate added_pixels_needed
-        added_pixels_needed = modulo_num - original_sub_img_side % modulo_num
-
-        # Calculate the side len of the final_sub_img
-        final_sub_img_side = original_sub_img_side + added_pixels_needed
+    final_sub_img_side = original_sub_img_side
 
     # Call img_divider Function
     return img_divider(file_list, img_per_row, final_sub_img_side)
