@@ -1,7 +1,7 @@
 """"
 This script creates a list of all files in the
-"JP2000_PNG Files" folder and writes them to a
- text file called jp2_list.txt.
+"JP2000_PNG Files" folder and writes them to a 
+text file called jp2_list.txt.
 """
 
 # Import(s)
