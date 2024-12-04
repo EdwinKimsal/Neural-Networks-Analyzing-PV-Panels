@@ -1,3 +1,8 @@
+"""
+This script will convert all JP2 files in the
+input dir to PNG files in the output dir.
+"""
+
 # Import(s)
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
