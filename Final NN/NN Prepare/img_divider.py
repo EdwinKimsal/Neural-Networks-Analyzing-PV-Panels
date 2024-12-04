@@ -1,3 +1,9 @@
+"""
+This program divices png images into a grid
+like formation and saves each split image
+as a new image.
+"""
+
 # Imports
 from PIL import Image
 import os

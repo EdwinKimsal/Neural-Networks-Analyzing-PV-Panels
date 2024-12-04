@@ -1,3 +1,13 @@
+"""
+This script is used to create a dataset for the NY-Q project.
+It will separate the positive and negative tiles based on the
+sum of the pixels in the mask. It will then randomly order
+the positive tiles and create a test, train, and validation
+dataset based on the total number of images and the percentage
+of test and train images. The output will be three txt files:
+test, train, and validation.
+"""
+
 # Import(s)
 from venv import create
 
