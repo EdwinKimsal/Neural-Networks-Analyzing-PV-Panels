@@ -1,3 +1,12 @@
+"""
+Neural Network for Solar Panel Segmentation
+that handles 4-channel images (RGBA)
+
+Used for experimentation of trying different
+combinations of channels (ex. R+IR,
+B+IR, G+IR, etc.)
+"""
+
 if __name__ == '__main__':
     import os
     from PIL import Image
