@@ -1,3 +1,8 @@
+"""
+Neural Network for Solar Panel Segmentation
+that handles 3-channel images (RGB)
+"""
+
 if __name__ == '__main__':
     import os
     from PIL import Image

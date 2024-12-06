@@ -1,5 +1,5 @@
 """
-This program divices png images into a grid
+This program divides png images into a grid
 like formation and saves each split image
 as a new image.
 """

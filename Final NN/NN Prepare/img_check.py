@@ -1,5 +1,5 @@
 """
-This script will check the byte size of each 
+This script will check the byte size of each
 file and remove the file if the byte size
 meets a certain condition.
 """
