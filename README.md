@@ -1,0 +1,1 @@
+This Neural Network uses a dataset of images masked by students at Pennsylvania State University. The dataset is not included in this repository, you need your own dataset to train and test the neural network.
