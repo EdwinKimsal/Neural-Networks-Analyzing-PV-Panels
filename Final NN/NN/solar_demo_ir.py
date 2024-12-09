@@ -26,6 +26,8 @@ if __name__ == '__main__':
     from lightning import Trainer, LightningModule
     from pytorch_lightning.callbacks import ModelCheckpoint # For loading checkpoints
 
+    import img_conv
+
     # Root path to the dataset
     DATA_DIR = r'.\NY-Q\tiles'
 
@@ -45,7 +47,7 @@ if __name__ == '__main__':
     EPOCHS = 2
 
     # Channel variables
-    num_channels = 4
+    channel = -1
     type = "RGBA"
 
     # Paths to the images and masks in the dataset
@@ -136,6 +138,9 @@ if __name__ == '__main__':
 
             # Convert to numpy
             image = np.asarray(image, dtype=np.uint8)
+
+            # Convert to three channel numpy
+            image = img_conv.four_to_three(image, 3) # FIXME?
 
             # Read the mask and convert to float32
             mask = Image.open(self.masks_fps[i])
@@ -242,8 +247,8 @@ if __name__ == '__main__':
         :return: An Albumentations Compose object
         """
         test_transform = [
-            # # We could do the image scaling by resizing instead of cropping if we wanted
-            # A.Resize(CROPSIZE, CROPSIZE, always_apply=True, p=1),
+            # We could do the image scaling by resizing instead of cropping if we wanted
+            A.Resize(CROPSIZE, CROPSIZE, always_apply=True, p=1),
 
             # Crop deterministically here, rather than randomly
             A.PadIfNeeded(CROPSIZE, CROPSIZE, always_apply=True),
@@ -321,8 +326,8 @@ if __name__ == '__main__':
             )
             # preprocessing parameteres for image
             params = smp.encoders.get_preprocessing_params(encoder_name)
-            self.register_buffer("std", torch.tensor(params["std"]).view (1, num_channels, 1, 1))
-            self.register_buffer("mean", torch.tensor(params["mean"]).view(1, num_channels, 1, 1))
+            self.register_buffer("std", torch.tensor(params["std"]).view (1, 3, 1, 1))
+            self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 3, 1, 1))
 
             # for image segmentation dice loss could be the best first choice
             self.loss_fn = smp.losses.DiceLoss(smp.losses.BINARY_MODE, from_logits=True)
@@ -341,7 +346,7 @@ if __name__ == '__main__':
         def shared_step(self, batch, stage):
             image, mask = batch
 
-            # Shape of the image should be (batch_size, num_channels, height, width)
+            # Shape of the image should be (batch_size, 3, height, width)
             # if you work with grayscale images, expand channels dim to have [batch_size, 1, height, width]
             assert image.ndim == 4
 
@@ -456,29 +461,29 @@ if __name__ == '__main__':
 
     # Models
     # Model for Training
-    # model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
+    model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
     # Model for ???
     # model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Trained Checkpoint
-    model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
-                                            out_classes=OUT_CLASSES)
-    # Load checkpoint
-    checkpoint_callback = ModelCheckpoint(
-        dirpath='lightning_logs/version_8/checkpoints/',
-        filename=check_point_file,
-        save_top_k=1,
-        mode='max'
-    )
+    # model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
+    #                                         out_classes=OUT_CLASSES)
+    # # Load checkpoint
+    # checkpoint_callback = ModelCheckpoint(
+    #     dirpath='lightning_logs/version_8/checkpoints/',
+    #     filename=check_point_file,
+    #     save_top_k=1,
+    #     mode='max'
+    # )
 
     # Set trainer
     trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
 
     # Trains Neural Network
-    # trainer.fit(
-    #     model,
-    #     train_dataloaders=train_loader,
-    #     val_dataloaders=valid_loader,
-    # )
+    trainer.fit(
+        model,
+        train_dataloaders=train_loader,
+        val_dataloaders=valid_loader,
+    )
 
     # run validation dataset
     valid_metrics = trainer.validate(model, dataloaders=valid_loader, verbose=False)
