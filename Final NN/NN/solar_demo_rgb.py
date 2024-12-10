@@ -31,14 +31,14 @@ if __name__ == '__main__':
     validate = os.path.join(DATA_DIR, 'val_2024.txt')
 
     # File for checkpoint
-    check_point_file = os.path.join(".", 'lightning_logs', 'version_8', 'checkpoints', 'epoch=9-step=400.ckpt')
+    check_point_file = os.path.join(".", 'lightning_logs', 'version_45', 'checkpoints', 'epoch=4-step=200.ckpt')
 
     # Size to crop the images during augmentation
     CROPSIZE = 576  # Must be divisible by 32
 
     # Some training hyperparameters
-    BATCH_SIZE = 10
-    EPOCHS = 2
+    BATCH_SIZE = 2
+    EPOCHS = 5
 
     # Paths to the images and masks in the dataset
     # Training
@@ -449,16 +449,19 @@ if __name__ == '__main__':
 
 
     # Models
-    # Model for Training
+    # Model for Training 1
     # model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
-    # Model for ???
+    # Model for Training 2
     # model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
-    # Model for Trained Checkpoint
+    # Model for Trained Checkpoint 1
     model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
                                             out_classes=OUT_CLASSES)
+    # Model for Trained Checkpoint 2
+    # model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="mit_b0", in_channels=3,
+    #                                         out_classes=OUT_CLASSES)
+
     # Load checkpoint
     checkpoint_callback = ModelCheckpoint(
-        dirpath='lightning_logs/version_8/checkpoints/',
         filename=check_point_file,
         save_top_k=1,
         mode='max'
@@ -467,7 +470,7 @@ if __name__ == '__main__':
     # Set trainer
     trainer = pl.Trainer(max_epochs=EPOCHS, log_every_n_steps=1)
 
-    # Trains Neural Network
+    # # Trains Neural Network
     # trainer.fit(
     #     model,
     #     train_dataloaders=train_loader,
