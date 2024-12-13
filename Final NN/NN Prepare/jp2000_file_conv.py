@@ -6,13 +6,23 @@ input dir to PNG files in the output dir.
 # Import(s)
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+import numpy as np
+import glymur
 import os
 
 # Add file function
 def convert(file, input_file_path, output_file_path):
-    # Open JP2 image and convert to PNG
-    img_jp2 = Image.open(os.path.join(input_file_path, file))
-    img_jp2.save(os.path.join(output_file_path, f"{file.replace(".jp2", ".png")}"), "PNG")
+    # Open the JP2 file
+    jp2 = glymur.Jp2k(os.path.join(input_file_path, file))
+
+    # Access the pixel data as a NumPy array
+    np_array = jp2[:]
+
+    # Save array as png
+    image = Image.fromarray(np_array)
+
+    # Save the image as a PNG file
+    image.save(os.path.join(output_file_path, file.replace("jp2", "png")))
 
 
 # Main function
