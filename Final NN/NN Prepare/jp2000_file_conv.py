@@ -4,7 +4,7 @@ input dir to PNG files in the output dir.
 """
 
 # Import(s)
-from PIL import Image, ImageFile
+from PIL import Image
 import glymur
 import os
 
