@@ -4,9 +4,7 @@ input dir to PNG files in the output dir.
 """
 
 # Import(s)
-from PIL import Image, ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-import numpy as np
+from PIL import Image
 import glymur
 import os
 

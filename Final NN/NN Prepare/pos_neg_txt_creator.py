@@ -9,8 +9,6 @@ test, train, and validation.
 """
 
 # Import(s)
-from venv import create
-
 import numpy as np
 import cv2
 import os
