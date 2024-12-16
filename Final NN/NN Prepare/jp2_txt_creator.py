@@ -18,9 +18,6 @@ def main():
     with open(output_txt_file, "w") as f:
         pass
 
-    # Set file_list to blank
-    file_list = []
-
     # Iterate through file_path
     for (root, dirs, file) in os.walk(input_files):
 
