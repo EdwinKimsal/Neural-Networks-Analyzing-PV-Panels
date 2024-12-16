@@ -1,7 +1,10 @@
 """"
 This script creates a list of all files in the
-"JP2000_PNG Files" folder and writes them to a
- text file called jp2_list.txt.
+JP2000_PNG Files folder and writes them to a
+.txt file
+
+.txt file is used in img_divider.py script
+to divide the now png images into tiles
 """
 
 # Import(s)

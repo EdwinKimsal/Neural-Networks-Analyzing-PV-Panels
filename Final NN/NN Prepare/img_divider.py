@@ -1,4 +1,6 @@
 """
+.txt file is created in jp2_png_write.py
+
 This program divides png images into a grid
 like formation and saves each split image
 as a new image.
