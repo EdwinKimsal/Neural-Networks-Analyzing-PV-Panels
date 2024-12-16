@@ -8,50 +8,73 @@ from PIL import Image
 import glymur
 import os
 
+# get_list function
+def get_list(input_txt_file):
+    # Open input_txt_file
+    with open(input_txt_file, "r") as f:
+        # Set blank list to store files
+        file_li = []
+
+        # Iterate through all jp2 files in txt file
+        for jp2_file in f:
+            file_li.append(jp2_file)
+
+    return file_li
+
+
 # Add file function
-def convert(file, input_file_path, output_file_path):
-    # Open the JP2 file
-    jp2 = glymur.Jp2k(os.path.join(input_file_path, file))
+def convert(input_txt_file, input_dir, output_dir):
+    # Get file_li
+    file_li = get_list(input_txt_file)
 
-    # Access the pixel data as a NumPy array
-    np_array = jp2[:]
+    # Base case
+    if len(file_li) == 0:
+        pass
 
-    # Save array as png
-    image = Image.fromarray(np_array)
+    # Recursive case
+    else:
+        # Set working file and remove working file from list
+        working_file = file_li[0].replace("\n", "")
+        file_li.pop(0)
 
-    # Save the image as a PNG file
-    image.save(os.path.join(output_file_path, file.replace("jp2", "png")))
+        # Print working file
+        print(working_file)
+
+        # Convert jp2 to png and save
+        # Open the JP2 file
+        jp2 = glymur.Jp2k(os.path.join(input_dir, working_file))
+
+        # Access the pixel data as a NumPy array
+        np_array = jp2[:]
+
+        # Save array as png
+        image = Image.fromarray(np_array)
+
+        # Save the image as a PNG file
+        image.save(os.path.join(output_dir, working_file.replace("jp2", "png")))
+
+        # Remove working file from txt file
+        # Open txt file to write
+        with open(input_txt_file, "w") as f:
+            # Iterate through each file in file_li
+            for jp2_file in file_li:
+                # Add file to txt
+                f.write(jp2_file)
+
+        # Recursive call
+        convert(input_txt_file, input_dir, output_dir)
 
 
 # Main function
 def main():
-    # Files
-    input_file = "Four Channel ZIP Files"
-    output_file = "JP2000_PNG Files"
-
     # File paths
     cwd = os.getcwd()
-    input_file_path = os.path.join(cwd, input_file)
-    output_file_path = os.path.join(cwd, output_file)
+    input_txt_file = os.path.join(cwd, "NY-Q", "tiles", "jp2_all.txt")
+    input_dir = os.path.join(cwd, "Four Channel ZIP Files")
+    output_dir = os.path.join(cwd, "JP2000_PNG Files")
 
-    # Set file_list to blank
-    file_list = []
-
-    # Iterate through file_path
-    for (root, dirs, file) in os.walk(input_file_path):
-
-        # Iterate through each file
-        for f in file:
-            # Append file to file_list
-            file_list.append(f)
-
-    # Iterate through each file in the input folder
-    for file in file_list:
-
-        # If the file ends with .jp2 add it to output Folder
-        if file.endswith(".jp2") == True:
-            print(file)
-            convert(file, input_file_path, output_file_path)
+    # Get file to work on (initiate process)
+    convert(input_txt_file, input_dir, output_dir)
 
 
 # Call main function
