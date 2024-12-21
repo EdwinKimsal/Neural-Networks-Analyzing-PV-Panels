@@ -3,7 +3,7 @@ Gets all .jp2 files from Four Channel ZIP Files
 (located on OneDrive) and writes each file on a
 new line in a .txt file
 
-.txt file is used in jp2000_file_conv.py
+.txt file is used in jp2_file_conv.py
 script for converting each .jp2 file to a
 .png file
 """

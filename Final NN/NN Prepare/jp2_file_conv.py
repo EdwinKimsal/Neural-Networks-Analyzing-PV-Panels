@@ -1,5 +1,5 @@
 """
-.txt file is created in jp2_txt_creator.py
+.txt file is created in jp2_png_conv_txt.py
 script
 
 This script will convert all JP2 files in the
