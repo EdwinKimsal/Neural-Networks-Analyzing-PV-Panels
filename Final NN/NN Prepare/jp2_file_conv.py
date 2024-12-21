@@ -1,5 +1,5 @@
 """
-.txt file is created in jp2_txt_creator.py
+.txt file is created in jp2_png_conv_txt.py
 script
 
 This script will convert all JP2 files in the
@@ -32,7 +32,7 @@ def convert(input_txt_file, input_dir, output_dir):
 
     # Base case
     if len(file_li) == 0:
-        pass
+        break
 
     # Recursive case
     else:
@@ -75,6 +75,9 @@ def main():
     input_txt_file = os.path.join(cwd, "NY-Q", "tiles", "jp2_all.txt")
     input_dir = os.path.join(cwd, "Four Channel ZIP Files")
     output_dir = os.path.join(cwd, "JP2000_PNG Files")
+
+    # Print num of files left
+    print(len(get_list(input_txt_file)))
 
     # Get file to work on (initiate process)
     convert(input_txt_file, input_dir, output_dir)
