@@ -22,7 +22,7 @@ def main():
     # Files paths
     cwd = os.getcwd()
     input_files = os.path.join(cwd, "Four Channel ZIP Files")
-    output_txt_file = os.path.join(cwd, "NY-Q", "tiles", "jp2_all.txt")
+    output_txt_file = os.path.join(cwd, "NY-Q", "tiles", "jp2_to_png.txt")
 
     # Reset output_txt_file
     with open(output_txt_file, "w") as f:

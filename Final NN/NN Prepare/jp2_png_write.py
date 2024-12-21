@@ -14,7 +14,7 @@ import os
 def main():
     # Set file names
     in_file = os.path.join(".", "JP2000_PNG Files")
-    out_file = os.path.join(".", "NY-Q", "tiles", "jp2_list.txt")
+    out_file = os.path.join(".", "NY-Q", "tiles", "jp2_divide.txt")
 
     # Create a list of all files in "JP2000_PNG Files"
     files = os.listdir(in_file)
