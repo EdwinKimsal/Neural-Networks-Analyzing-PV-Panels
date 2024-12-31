@@ -14,30 +14,32 @@ import cv2
 import os
 
 # pos_neg_sep function
-def pos_neg_sep(file_path_mask, sum_min, pos_file, neg_file):
+def pos_neg_sep(file_path_all, file_path_mask, sum_min, pos_file, neg_file):
     # Open pos and neg files to write
     pos = open(os.path.join(".", "NY-Q", "tiles", pos_file), "w")
     neg = open(os.path.join(".", "NY-Q", "tiles", neg_file), "w")
 
     # Iterate through each img
-    for f in os.listdir(file_path_mask):
-        mask = os.path.join(file_path_mask, f)
-        file = cv2.imread(mask)
-        height, width, channels = file.shape
+    with open(file_path_all, "r") as f:
+        for line in f:
+            line = line.replace("\n", "")
+            mask = os.path.join(file_path_mask, line)
+            file = cv2.imread(mask)
+            height, width, channels = file.shape
 
-        # Sum of all pixels in mask
-        sum = np.sum(file[0:height, 0:width])
+            # Sum of all pixels in mask
+            sum = np.sum(file[0:height, 0:width])
 
-        # Write to pos or neg file based on sum and sum_min
-        if sum >= sum_min:
-            pos.write(f + "\n")
-            print(f)
-        else:
-            neg.write(f + "\n")
+            # Write to pos or neg file based on sum and sum_min
+            if sum >= sum_min:
+                pos.write(f"{line}\n")
+                print(line)
+            else:
+                neg.write(f"{line}\n")
 
-    # Close pos and neg files
-    pos.close()
-    neg.close()
+        # Close pos and neg files
+        pos.close()
+        neg.close()
 
 
 # Randomly order function
@@ -83,7 +85,9 @@ def data_calc(total_num, test_per, train_per):
 # Main function
 def main():
     # File path(s)
-    file_path_mask = "./NY-Q/tiles/mask"
+    cwd = os.getcwd()
+    file_path_all = os.path.join(cwd, "NY-Q", "tiles", "all.txt")
+    file_path_mask = os.path.join(cwd, "NY-Q", "tiles", "mask")
     pos_file = "positive_tiles.txt"
     neg_file = "negative_tiles.txt"
 
@@ -95,7 +99,7 @@ def main():
     total_num = 100 # Total num of imgs
 
     # Call pos_neg_sep function
-    pos_neg_sep(file_path_mask, sum_min, pos_file, neg_file)
+    pos_neg_sep(file_path_all, file_path_mask, sum_min, pos_file, neg_file)
 
     # Call random_ord function
     img_list = random_ord(total_num, pos_file)
