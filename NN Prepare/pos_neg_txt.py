@@ -28,7 +28,7 @@ def pos_neg_sep(file_path_all, file_path_mask, sum_min, pos_file, neg_file):
             height, width, channels = file.shape
 
             # Sum of all pixels in mask
-            sum = np.sum(file[0:height, 0:width])
+            sum = np.sum(file == 255)
 
             # Write to pos or neg file based on sum and sum_min
             if sum >= sum_min:
@@ -92,7 +92,7 @@ def main():
     neg_file = "negative_tiles.txt"
 
     # Customizable vars
-    sum_min = 100 # Min pv pixels needed
+    sum_min = 10000 # Min pv pixels needed
     seed = 2024 # Seed value to replicate data
     test_per = .1 # Percentage of test imgs in decimal form
     train_per = .8 # Percentage of train imgs in decimal form

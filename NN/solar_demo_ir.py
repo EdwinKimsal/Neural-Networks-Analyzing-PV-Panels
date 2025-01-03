@@ -3,8 +3,8 @@ Neural Network for Solar Panel Segmentation
 that handles 4-channel images (RGBA)
 
 Used for experimentation of trying different
-combinations of channels (ex. R+IR,
-B+IR, G+IR, etc.)
+combinations of channels (ex. RB+IR,
+BG+IR, RG+IR, etc.)
 """
 
 if __name__ == '__main__':
@@ -41,15 +41,15 @@ if __name__ == '__main__':
     train = os.path.join(DATA_DIR, 'train_2024.txt')
     validate = os.path.join(DATA_DIR, 'val_2024.txt')
 
-    # File for checkpoint (found in this dir, not NN Prepare)
-    check_point_file = os.path.join(".", 'lightning_logs', 'version_8', 'checkpoints', 'epoch=9-step=400.ckpt')
+    # # File for checkpoint (found in this dir, not NN Prepare)
+    # check_point_file = os.path.join(".", 'lightning_logs', 'version_8', 'checkpoints', 'epoch=9-step=400.ckpt')
 
     # Size to crop the images during augmentation
     CROPSIZE = 576  # Must be divisible by 32
 
     # Some training hyperparameters
-    BATCH_SIZE = 10
-    EPOCHS = 2
+    BATCH_SIZE = 2
+    EPOCHS = 10
 
     # Channel variables
     channel = -1
@@ -145,7 +145,7 @@ if __name__ == '__main__':
             image = np.asarray(image, dtype=np.uint8)
 
             # Convert to three channel numpy
-            image = img_conv.four_to_three(image, 3) # FIXME?
+            image = img_conv.four_to_three(image, channel) # FIXME?
 
             # Read the mask and convert to float32
             mask = Image.open(self.masks_fps[i])
@@ -466,9 +466,9 @@ if __name__ == '__main__':
 
     # Models
     # Model for Training 1
-    model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
+    # model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Training 2
-    # model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
+    model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Trained Checkpoint 1
     # model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
     #                                         out_classes=OUT_CLASSES)
