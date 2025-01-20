@@ -1,6 +1,7 @@
 """
 Neural Network for Solar Panel Segmentation
-that handles 4-channel images (RGB+IR)
+that handles 3-channel images by subtracting
+a channel from a 4-channel img
 """
 
 if __name__ == '__main__':
@@ -23,6 +24,8 @@ if __name__ == '__main__':
     from lightning import Trainer, LightningModule
     from pytorch_lightning.callbacks import ModelCheckpoint # For loading checkpoints
 
+    import img_conv
+
     # Current working directory
     cwd = Path.cwd()
     parent = cwd.parent
@@ -35,15 +38,19 @@ if __name__ == '__main__':
     train = os.path.join(DATA_DIR, 'train_2024.txt')
     validate = os.path.join(DATA_DIR, 'val_2024.txt')
 
-    # File for checkpoint (found in this dir, not NN Prepare)
-    check_point_file = os.path.join(".", 'lightning_logs', 'version_44', 'checkpoints', 'epoch=14-step=600.ckpt')
+    # # File for checkpoint (found in this dir, not NN Prepare)
+    # check_point_file = os.path.join(".", 'lightning_logs', 'version_2', 'checkpoints', 'epoch=9-step=600.ckpt')
 
     # Size to crop the images during augmentation
     CROPSIZE = 576  # Must be divisible by 32
 
     # Some training hyperparameters
     BATCH_SIZE = 2
-    EPOCHS = 15
+    EPOCHS = 20
+
+    # Channel variables
+    channel = -4
+    type = "RGBA"
 
     # Paths to the images and masks in the dataset
     # Training
@@ -127,13 +134,15 @@ if __name__ == '__main__':
             self.augmentation = augmentation
 
         def __getitem__(self, i):
-            # Read the image and convert to RGB
-            ## TODO we'd need to override this if we're going to work with 4 channel images
+            # Read the image and convert to img type
             image = Image.open(self.images_fps[i])
-            image = image.convert('RGBA')
+            image = image.convert(type)
 
             # Convert to numpy
             image = np.asarray(image, dtype=np.uint8)
+
+            # Remove one of the four channels from numpy arr
+            image = img_conv.remove_channel(image, channel)
 
             # Read the mask and convert to float32
             mask = Image.open(self.masks_fps[i])
@@ -221,6 +230,15 @@ if __name__ == '__main__':
                 ],
                 p=0.9,
             ),
+
+            # Apply some random color adjustments, probability 90%
+            A.OneOf(
+                [
+                    A.RandomBrightnessContrast(p=1),
+                    A.HueSaturationValue(p=1),
+                ],
+                p=0.9,
+            ),
         ]
         return A.Compose(train_transform)
 
@@ -231,8 +249,8 @@ if __name__ == '__main__':
         :return: An Albumentations Compose object
         """
         test_transform = [
-            # # We could do the image scaling by resizing instead of cropping if we wanted
-            # A.Resize(CROPSIZE, CROPSIZE, always_apply=True, p=1),
+            # We could do the image scaling by resizing instead of cropping if we wanted
+            A.Resize(CROPSIZE, CROPSIZE, always_apply=True, p=1),
 
             # Crop deterministically here, rather than randomly
             A.PadIfNeeded(CROPSIZE, CROPSIZE, always_apply=True),
@@ -309,10 +327,9 @@ if __name__ == '__main__':
                 **kwargs
             )
             # preprocessing parameteres for image
-            # TODO Does the 3 equate to the # of channels?
             params = smp.encoders.get_preprocessing_params(encoder_name)
-            self.register_buffer("std", torch.tensor(params["std"]).view (1, 4, 1, 1))
-            self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 4, 1, 1))
+            self.register_buffer("std", torch.tensor(params["std"]).view (1, 3, 1, 1))
+            self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 3, 1, 1))
 
             # for image segmentation dice loss could be the best first choice
             self.loss_fn = smp.losses.DiceLoss(smp.losses.BINARY_MODE, from_logits=True)
@@ -331,7 +348,7 @@ if __name__ == '__main__':
         def shared_step(self, batch, stage):
             image, mask = batch
 
-            # Shape of the image should be (batch_size, num_channels, height, width)
+            # Shape of the image should be (batch_size, 3, height, width)
             # if you work with grayscale images, expand channels dim to have [batch_size, 1, height, width]
             assert image.ndim == 4
 
@@ -448,7 +465,7 @@ if __name__ == '__main__':
     # Model for Training 1
     # model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Training 2
-    model = SolarModel("FPN", "mit_b0", in_channels=4, out_classes=OUT_CLASSES)
+    model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Trained Checkpoint 1
     # model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
     #                                         out_classes=OUT_CLASSES)
