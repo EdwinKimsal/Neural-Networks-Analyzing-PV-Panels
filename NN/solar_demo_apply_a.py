@@ -1,6 +1,8 @@
 """
 Neural Network for Solar Panel Segmentation
-that handles 4-channel images (RGB+IR)
+that handles three channel imgs by
+applying a fourth opacity channel to each
+channel and removes the opacity chanel
 """
 
 if __name__ == '__main__':
@@ -23,6 +25,8 @@ if __name__ == '__main__':
     from lightning import Trainer, LightningModule
     from pytorch_lightning.callbacks import ModelCheckpoint # For loading checkpoints
 
+    import img_conv
+
     # Current working directory
     cwd = Path.cwd()
     parent = cwd.parent
@@ -35,15 +39,15 @@ if __name__ == '__main__':
     train = os.path.join(DATA_DIR, 'train_2024.txt')
     validate = os.path.join(DATA_DIR, 'val_2024.txt')
 
-    # File for checkpoint (found in this dir, not NN Prepare)
-    check_point_file = os.path.join(".", 'lightning_logs', 'version_44', 'checkpoints', 'epoch=14-step=600.ckpt')
+    # # File for checkpoint (found in this dir, not NN Prepare)
+    # check_point_file = os.path.join(".", 'lightning_logs', 'version_44', 'checkpoints', 'epoch=14-step=600.ckpt')
 
     # Size to crop the images during augmentation
     CROPSIZE = 576  # Must be divisible by 32
 
     # Some training hyperparameters
     BATCH_SIZE = 2
-    EPOCHS = 15
+    EPOCHS = 2
 
     # Paths to the images and masks in the dataset
     # Training
@@ -130,10 +134,12 @@ if __name__ == '__main__':
             # Read the image and convert to RGB
             ## TODO we'd need to override this if we're going to work with 4 channel images
             image = Image.open(self.images_fps[i])
-            image = image.convert('RGBA')
 
             # Convert to numpy
             image = np.asarray(image, dtype=np.uint8)
+
+            # Apply A channel to RGB by calling module
+            image = img_conv.apply_a(image)
 
             # Read the mask and convert to float32
             mask = Image.open(self.masks_fps[i])
@@ -218,6 +224,15 @@ if __name__ == '__main__':
                 [
                     A.Sharpen(p=1),
                     A.Blur(blur_limit=3, p=1),
+                ],
+                p=0.9,
+            ),
+
+            # Apply some random color adjustments, probability 90%
+            A.OneOf(
+                [
+                    A.RandomBrightnessContrast(p=1),
+                    A.HueSaturationValue(p=1),
                 ],
                 p=0.9,
             ),
@@ -311,8 +326,8 @@ if __name__ == '__main__':
             # preprocessing parameteres for image
             # TODO Does the 3 equate to the # of channels?
             params = smp.encoders.get_preprocessing_params(encoder_name)
-            self.register_buffer("std", torch.tensor(params["std"]).view (1, 4, 1, 1))
-            self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 4, 1, 1))
+            self.register_buffer("std", torch.tensor(params["std"]).view (1, 3, 1, 1))
+            self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 3, 1, 1))
 
             # for image segmentation dice loss could be the best first choice
             self.loss_fn = smp.losses.DiceLoss(smp.losses.BINARY_MODE, from_logits=True)
@@ -448,7 +463,7 @@ if __name__ == '__main__':
     # Model for Training 1
     # model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Training 2
-    model = SolarModel("FPN", "mit_b0", in_channels=4, out_classes=OUT_CLASSES)
+    model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Trained Checkpoint 1
     # model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
     #                                         out_classes=OUT_CLASSES)
