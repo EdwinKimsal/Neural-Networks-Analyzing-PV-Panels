@@ -307,7 +307,7 @@ if __name__ == '__main__':
                 classes=out_classes,
                 **kwargs
             )
-            # preprocessing parameteres for image
+            # preprocessing parameters for image
             params = smp.encoders.get_preprocessing_params(encoder_name)
             self.register_buffer("std", torch.tensor(params["std"]).view (1, 4, 1, 1))
             self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 4, 1, 1))
