@@ -35,8 +35,8 @@ if __name__ == '__main__':
     train = os.path.join(DATA_DIR, 'train_2024.txt')
     validate = os.path.join(DATA_DIR, 'val_2024.txt')
 
-    # File for checkpoint (found in this dir, not NN Prepare)
-    check_point_file = os.path.join(".", 'lightning_logs', 'version_44', 'checkpoints', 'epoch=14-step=600.ckpt')
+    # # File for checkpoint (found in this dir, not NN Prepare)
+    # check_point_file = os.path.join(".", 'lightning_logs', 'version_44', 'checkpoints', 'epoch=14-step=600.ckpt')
 
     # Size to crop the images during augmentation
     CROPSIZE = 576  # Must be divisible by 32
@@ -127,8 +127,7 @@ if __name__ == '__main__':
             self.augmentation = augmentation
 
         def __getitem__(self, i):
-            # Read the image and convert to RGB
-            ## TODO we'd need to override this if we're going to work with 4 channel images
+            # Read the image and convert to RGBA
             image = Image.open(self.images_fps[i])
             image = image.convert('RGBA')
 
@@ -309,7 +308,6 @@ if __name__ == '__main__':
                 **kwargs
             )
             # preprocessing parameteres for image
-            # TODO Does the 3 equate to the # of channels?
             params = smp.encoders.get_preprocessing_params(encoder_name)
             self.register_buffer("std", torch.tensor(params["std"]).view (1, 4, 1, 1))
             self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 4, 1, 1))
