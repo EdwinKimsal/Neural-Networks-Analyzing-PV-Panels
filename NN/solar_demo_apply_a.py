@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     # Some training hyperparameters
     BATCH_SIZE = 2
-    EPOCHS = 2
+    EPOCHS = 10
 
     # Paths to the images and masks in the dataset
     # Training
@@ -132,7 +132,6 @@ if __name__ == '__main__':
 
         def __getitem__(self, i):
             # Read the image and convert to RGB
-            ## TODO we'd need to override this if we're going to work with 4 channel images
             image = Image.open(self.images_fps[i])
 
             # Convert to numpy
@@ -324,7 +323,6 @@ if __name__ == '__main__':
                 **kwargs
             )
             # preprocessing parameteres for image
-            # TODO Does the 3 equate to the # of channels?
             params = smp.encoders.get_preprocessing_params(encoder_name)
             self.register_buffer("std", torch.tensor(params["std"]).view (1, 3, 1, 1))
             self.register_buffer("mean", torch.tensor(params["mean"]).view(1, 3, 1, 1))

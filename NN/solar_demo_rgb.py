@@ -35,15 +35,15 @@ if __name__ == '__main__':
     train = os.path.join(DATA_DIR, 'train_2024.txt')
     validate = os.path.join(DATA_DIR, 'val_2024.txt')
 
-    # File for checkpoint (found in this dir, not NN Prepare)
-    check_point_file = os.path.join(".", 'lightning_logs', 'version_44', 'checkpoints', 'epoch=14-step=600.ckpt')
+    # # File for checkpoint (found in this dir, not NN Prepare)
+    # check_point_file = os.path.join(".", 'lightning_logs', 'version_44', 'checkpoints', 'epoch=14-step=600.ckpt')
 
     # Size to crop the images during augmentation
     CROPSIZE = 576  # Must be divisible by 32
 
     # Some training hyperparameters
     BATCH_SIZE = 2
-    EPOCHS = 15
+    EPOCHS = 10
 
     # Paths to the images and masks in the dataset
     # Training
