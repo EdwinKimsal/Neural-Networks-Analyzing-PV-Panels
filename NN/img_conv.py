@@ -8,6 +8,7 @@ combined
 
 # Import(s)
 import numpy as np
+import cv2
 
 # Function to remove a channel from image
 def remove_channel(arr, channel=-1):
@@ -45,24 +46,12 @@ def apply_a(arr):
         - Numpy array of RGB img with A applied to each channel
     """
 
-    # Make a copy of arr
-    arr_copy = arr.copy()
+    # Extract the alpha channel
+    alpha_channel = arr[:, :, 3] / 255.0
 
-    # Iterate through each pixel in img
-    for row in range(len(arr_copy)):
-        for pixel in range(len(arr_copy[row])):
-            # Find alpha channel
-            a = arr_copy[row][pixel][3]
-
-            # Calculate opacity multiplier
-            opacity_mult = (255 - a) / 255
-
-            # Iterate through RGB values in pixel
-            for channel in range(3):
-                arr_copy[row][pixel][channel] *=  opacity_mult
-
-    # Deletes channel from arr
-    arr = np.delete(arr_copy, 3, axis=2)
+    # Blend the image with a white background using the alpha channel
+    blended = cv2.convertScaleAbs(arr[:, :, :3] * alpha_channel[:, :, np.newaxis] + (1 - alpha_channel[:, :, np.newaxis]) * 255)
+    print(blended.shape)
 
     # Return arr
-    return arr
+    return blended

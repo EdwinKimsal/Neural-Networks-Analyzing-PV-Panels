@@ -137,7 +137,7 @@ if __name__ == '__main__':
             # Convert to numpy
             image = np.asarray(image, dtype=np.uint8)
 
-            # Apply A channel to RGB by calling module
+            # Apply "A" channel to "RGB" by calling module
             image = img_conv.apply_a(image)
 
             # Read the mask and convert to float32
