@@ -47,11 +47,10 @@ def apply_a(arr):
     """
 
     # Extract the alpha channel
-    alpha_channel = arr[:, :, 3] / 255.0
+    alpha_channel = arr[:, :, 3] / 255
 
     # Blend the image with a white background using the alpha channel
     blended = cv2.convertScaleAbs(arr[:, :, :3] * alpha_channel[:, :, np.newaxis] + (1 - alpha_channel[:, :, np.newaxis]) * 255)
-    print(blended.shape)
 
     # Return arr
     return blended
