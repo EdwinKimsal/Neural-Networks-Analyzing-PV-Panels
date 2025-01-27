@@ -455,9 +455,9 @@ if __name__ == '__main__':
 
     # Models
     # Model for Training 1
-    # model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
+    model = SolarModel("FPN", "resnext50_32x4d", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Training 2
-    model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
+    # model = SolarModel("FPN", "mit_b0", in_channels=3, out_classes=OUT_CLASSES)
     # Model for Trained Checkpoint 1
     # model = SolarModel.load_from_checkpoint(check_point_file, arch="FPN", encoder_name="resnext50_32x4d", in_channels=3,
     #                                         out_classes=OUT_CLASSES)
