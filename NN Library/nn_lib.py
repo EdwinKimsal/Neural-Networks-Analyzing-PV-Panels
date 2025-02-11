@@ -257,7 +257,7 @@ class Dataset(BaseDataset):
 
 
 # Functions
-def create_obj(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, y_test_dir, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS):
+def create_objs(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, y_test_dir, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS):
     # # Optional: Create a dataset with augmentation just to make sure it loads correctly
     # dataset = Dataset(
     #     x_train_dir,
@@ -317,6 +317,9 @@ def create_obj(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, y
     # Parameter for the model
     T_MAX = EPOCHS * len(train_loader)  # Actual max number of iterations
     OUT_CLASSES = 1
+
+    # Return calculated variables
+    return train_loader, valid_loader, test_loader, T_MAX, OUT_CLASSES
 
 
 def remove_channel(arr, channel=-1):
