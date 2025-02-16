@@ -6,23 +6,15 @@ easy to use file to simplify debugging
 # Import(s)
 import os
 from PIL import Image
-from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-
 import torch
-
 import albumentations as A
-
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset as BaseDataset
 from torch.optim import lr_scheduler
-
 import segmentation_models_pytorch as smp
 import pytorch_lightning as pl
-from lightning import Trainer, LightningModule
-from pytorch_lightning.callbacks import ModelCheckpoint  # For loading checkpoints
-
 
 # SolarModel NN class
 class SolarModel(pl.LightningModule):
@@ -48,14 +40,14 @@ class SolarModel(pl.LightningModule):
         )
 
         # preprocessing parameteres for image
-        params = smp.encoders.get_preprocessing_params(encoder_name)
+        params = smp.encoders.get_preprocessing_params(encoder_name) # PATH
         self.register_buffer("std", torch.tensor(params["std"]).view(1, in_channels, 1, 1))
         self.register_buffer("mean", torch.tensor(params["mean"]).view(1, in_channels, 1, 1))
 
         # for image segmentation dice loss could be the best first choice
         self.loss_fn = smp.losses.DiceLoss(smp.losses.BINARY_MODE, from_logits=True)
 
-        # initialize step metics
+        # initialize step metrics
         self.training_step_outputs = []
         self.validation_step_outputs = []
         self.test_step_outputs = []
@@ -203,6 +195,7 @@ class Dataset(BaseDataset):
             masks_dir,
             imgs_fn,
             masks_fn,
+            img_type,
             augmentation=None,
     ):
         # Get a list of the filenames
@@ -227,12 +220,14 @@ class Dataset(BaseDataset):
         # Store the augmentation function
         self.augmentation = augmentation
 
+        # Set img type (four, RGBA, or three, RGB)
+        self.img_type = img_type
+
     # Get item method
     def __getitem__(self, i):
         # Read the image and convert to RGB
-        ## TODO we'd need to override this if we're going to work with 4 channel images
         image = Image.open(self.images_fps[i])
-        image = image.convert('RGB')
+        image = image.convert(self.img_type)
 
         # Convert to numpy
         image = np.asarray(image, dtype=np.uint8)
@@ -257,7 +252,18 @@ class Dataset(BaseDataset):
 
 
 # Functions
-def create_objs(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, y_test_dir, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS):
+def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS, img_type):
+    # Paths to the images and masks in the dataset
+    # Training
+    x_train_dir = os.path.join(DATA_DIR, img)
+    y_train_dir = os.path.join(DATA_DIR, 'mask')
+    # Validation (same as training)
+    x_valid_dir = x_train_dir
+    y_valid_dir = y_train_dir
+    # Test (Same as training)
+    x_test_dir = x_train_dir
+    y_test_dir = y_train_dir
+
     # # Optional: Create a dataset with augmentation just to make sure it loads correctly
     # dataset = Dataset(
     #     x_train_dir,
@@ -275,6 +281,7 @@ def create_objs(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, 
         y_train_dir,
         train,
         train,
+        img_type,
         augmentation=get_training_augmentation(CROPSIZE),
     )
 
@@ -289,6 +296,7 @@ def create_objs(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, 
         y_train_dir,
         train,
         train,
+        img_type,
         augmentation=get_training_augmentation(CROPSIZE),
     )
 
@@ -298,6 +306,7 @@ def create_objs(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, 
         y_valid_dir,
         validate,
         validate,
+        img_type,
         augmentation=get_validation_augmentation(CROPSIZE),
     )
 
@@ -306,6 +315,7 @@ def create_objs(x_train_dir, y_train_dir, x_valid_dir, y_valid_dir, x_test_dir, 
         y_test_dir,
         test,
         test,
+        img_type,
         augmentation=get_validation_augmentation(CROPSIZE),
     )
 
@@ -422,23 +432,24 @@ def get_training_augmentation(CROPSIZE):
             p=0.9,
         ),
 
-        # Apply some random sharpening or blurring, proability 90%
-        A.OneOf(
-            [
-                A.Sharpen(p=1),
-                A.Blur(blur_limit=3, p=1),
-            ],
-            p=0.9,
-        ),
-
-        # Apply some random color adjustments, probability 90%
-        A.OneOf(
-            [
-                A.RandomBrightnessContrast(p=1),
-                A.HueSaturationValue(p=1),
-            ],
-            p=0.9,
-        ),
+        # # Commented out due to four channel imgs not being able to handle this augmentation
+        # # Apply some random sharpening or blurring, probability 90%
+        # A.OneOf(
+        #     [
+        #         A.Sharpen(p=1),
+        #         A.Blur(blur_limit=3, p=1),
+        #     ],
+        #     p=0.9,
+        # ),
+        #
+        # # Apply some random color adjustments, probability 90%
+        # A.OneOf(
+        #     [
+        #         A.RandomBrightnessContrast(p=1),
+        #         A.HueSaturationValue(p=1),
+        #     ],
+        #     p=0.9,
+        # ),
     ]
     return A.Compose(train_transform)
 
