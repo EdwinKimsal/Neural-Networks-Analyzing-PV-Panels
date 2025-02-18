@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # Some training hyperparameters
     BATCH_SIZE = 2
-    EPOCHS = 10
+    EPOCHS = 15
 
     # Paths to the images and masks in the dataset
     # Training
