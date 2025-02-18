@@ -96,7 +96,7 @@ def main():
     seed = 2024 # Seed value to replicate data
     test_per = .1 # Percentage of test imgs in decimal form
     train_per = .8 # Percentage of train imgs in decimal form
-    total_num = 100 # Total num of imgs
+    total_num = 150 # Total num of imgs
 
     # Call pos_neg_sep function
     pos_neg_sep(file_path_all, file_path_mask, sum_min, pos_file, neg_file)
