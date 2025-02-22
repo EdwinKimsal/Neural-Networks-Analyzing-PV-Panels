@@ -31,19 +31,19 @@ if __name__ == '__main__':
 
     # Some training hyperparameters
     BATCH_SIZE = 2
-    EPOCHS = 20
+    EPOCHS = 6
 
     # Channel variable (channel to delete ['R', 'G', 'B', 'A'])
-    channel = -1
+    channel = -4
 
     # Img ending
-    img = "img"
+    img = "jp2"
 
     # Img Type
-    img_type = "RGB"
+    img_type = "RGBA"
 
     # Create datasets, dataloaders, and other necessary objects
-    train_loader, valid_loader, test_loader, T_MAX, OUT_CLASSES = nn_lib.create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS, img_type)
+    train_loader, valid_loader, test_loader, T_MAX, OUT_CLASSES = nn_lib.create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS, img_type, channel)
 
     # Models
     # # Model for Training 1

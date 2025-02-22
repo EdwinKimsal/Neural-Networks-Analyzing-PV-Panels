@@ -197,6 +197,7 @@ class Dataset(BaseDataset):
             masks_fn,
             img_type,
             augmentation=None,
+            channel=None
     ):
         # Get a list of the filenames
         self.img_names = read_file_list(imgs_fn)
@@ -223,14 +224,20 @@ class Dataset(BaseDataset):
         # Set img type (four, RGBA, or three, RGB)
         self.img_type = img_type
 
+        # Set channel
+        self.channel = channel
+
     # Get item method
     def __getitem__(self, i):
-        # Read the image and convert to RGB
+        # Read the image
         image = Image.open(self.images_fps[i])
-        image = image.convert(self.img_type)
 
         # Convert to numpy
         image = np.asarray(image, dtype=np.uint8)
+
+        # Remove one of the four channels from numpy arr if there is a channel
+        if self.channel is not None:
+            image = remove_channel(image, self.channel)
 
         # Read the mask and convert to float32
         mask = Image.open(self.masks_fps[i])
@@ -252,7 +259,7 @@ class Dataset(BaseDataset):
 
 
 # Functions
-def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS, img_type):
+def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOCHS, img_type, channel=None):
     # Paths to the images and masks in the dataset
     # Training
     x_train_dir = os.path.join(DATA_DIR, img)
@@ -270,7 +277,8 @@ def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOC
     #     y_train_dir,
     #     train,
     #     train,
-    #     augmentation=None
+    #     augmentation=None,
+    #     channel=channel,
     # )
     # image, mask = dataset[0]
     # nn_lib.visualize(image=image, mask=mask, )
@@ -283,6 +291,7 @@ def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOC
         train,
         img_type,
         augmentation=get_training_augmentation(CROPSIZE),
+        channel=channel,
     )
 
     # Should be same image with different random transforms, but comes out as different images
@@ -298,6 +307,7 @@ def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOC
         train,
         img_type,
         augmentation=get_training_augmentation(CROPSIZE),
+        channel=channel,
     )
 
     # Generate the datasets for validation and test, with only the cropping augmentation
@@ -308,6 +318,7 @@ def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOC
         validate,
         img_type,
         augmentation=get_validation_augmentation(CROPSIZE),
+        channel=channel,
     )
 
     test_dataset = Dataset(
@@ -317,6 +328,7 @@ def create_objs(DATA_DIR, img, train, validate, test, CROPSIZE, BATCH_SIZE, EPOC
         test,
         img_type,
         augmentation=get_validation_augmentation(CROPSIZE),
+        channel=channel,
     )
 
     # Create the dataloaders, which will actually read the data off the disk

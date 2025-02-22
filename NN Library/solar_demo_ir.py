@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     # Some training hyperparameters
     BATCH_SIZE = 2
-    EPOCHS = 10
+    EPOCHS = 6
 
     # Img ending
     img = "jp2"
