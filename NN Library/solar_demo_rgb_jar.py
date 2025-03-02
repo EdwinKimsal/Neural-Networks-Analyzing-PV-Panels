@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parent = r'E:\datasets\PV Aerial\NY-labels'
 
     # Root path to the dataset
-    DATA_DIR = os.path.join(parent, "img4_tiles")
+    DATA_DIR = parent
 
     # File with the list of images to use for testing, training, and validation
     test = os.path.join(DATA_DIR, 'test_2024.txt')
