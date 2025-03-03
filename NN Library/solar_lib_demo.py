@@ -12,12 +12,12 @@ import torch
 torch.set_float32_matmul_precision('medium')
 
 def main():
-    ds_root = r'E:\datasets\PV Aerial\NY-labels'
-    imgdir = os.path.join(ds_root, 'img_tiles')
+    ds_root = r'D:\data\solardnn\NY-Q\tiles'
+    imgdir = os.path.join(ds_root, 'img4_tiles')
     maskdir = os.path.join(ds_root, 'mask_tiles')
 
-    out_root = r'E:\data\solar_rev'
-    ds_filelist_dir = os.path.join(out_root, 'dataset_defns')
+    out_root = r'D:\data\solardnn\NY-Q'
+    ds_filelist_dir = os.path.join(out_root, 'tiles')
 
     seed = 2025
     channel_list = [0,1,2]
@@ -29,7 +29,7 @@ def main():
 
     # Build the dataset definition files if they don't exist
     im_list = fm.read_file_list(os.path.join(ds_root, 'positive_tiles.txt'))
-    fm.test_train_valid_split_list(im_list, im_list, ds_filelist_dir, n_set=1000, seed=seed, overwrite=True)
+    fm.test_train_valid_split_list(im_list, im_list, ds_filelist_dir, n_set=None, seed=seed, overwrite=True)
 
 
     # Get the lists of files
@@ -62,16 +62,16 @@ def main():
     # create model
     model = solar_model.SolarModel("FPN", "resnext50_32x4d", in_channels=3, t_max=tmax)
 
-    if load and os.path.exists(r"D:\Code\Python\edwin-nn\Neural-Networks-Analyzing-PV-Panels\NN Library\lightning_logs\version_0\checkpoints"):
+    if load and os.path.exists(r".\lightning_logs\version_0\checkpoints"):
         import glob
-        fn = glob.glob(os.path.join(r"D:\Code\Python\edwin-nn\Neural-Networks-Analyzing-PV-Panels\NN Library\lightning_logs\version_0\checkpoints", "*.ckpt"))[-1]
+        fn = glob.glob(os.path.join(r".\lightning_logs\version_0\checkpoints", "*.ckpt"))[-1]
         model = solar_model.SolarModel.load_from_checkpoint(fn)
     else:
         solar_model.fit(model, train_ds, valid_ds, batch_size, epochs)
 
     evaluate.evaluate(model, valid_ds, test_ds, batch_size)
 
-    evaluate.metrics_plot(r"D:\Code\Python\edwin-nn\Neural-Networks-Analyzing-PV-Panels\NN Library\lightning_logs\version_0\metrics.csv")
+    evaluate.metrics_plot(r".\lightning_logs\version_0\metrics.csv")
 
     evaluate.plot_test_frames(model, test_ds)
 

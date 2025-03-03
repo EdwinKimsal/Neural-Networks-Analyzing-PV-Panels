@@ -1,0 +1,12 @@
+# Start by getting current command for installing torch from: https://pytorch.org/get-started/locally/
+# Current command used is:
+# pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+
+# modeling
+albumentations
+lightning
+segmentation_models_pytorch
+
+# analysis
+pandas
+matplotlib
