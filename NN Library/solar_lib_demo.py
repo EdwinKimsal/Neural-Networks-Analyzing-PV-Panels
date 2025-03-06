@@ -12,32 +12,33 @@ import torch
 torch.set_float32_matmul_precision('medium')
 
 def main():
-    ds_root = r'D:\data\solardnn\NY-Q\tiles'
+    ds_root = r'D:\data\solardnn_2025\NY-Q\tiles'
     imgdir = os.path.join(ds_root, 'img4_tiles')
     maskdir = os.path.join(ds_root, 'mask_tiles')
 
-    out_root = r'D:\data\solardnn\NY-Q'
+    out_root = r'D:\data\solardnn_2025\NY-Q'
     ds_filelist_dir = os.path.join(out_root, 'tiles')
 
-    seed = 2025
+    seed = 1024
     channel_list = [0,1,2]
     cropsize = 576
-    epochs = 10
+    epochs = 20
     batch_size = 16
 
-    load = True
+    load = False
+    ver = 4
 
     # Build the dataset definition files if they don't exist
     im_list = fm.read_file_list(os.path.join(ds_root, 'positive_tiles.txt'))
-    fm.test_train_valid_split_list(im_list, im_list, ds_filelist_dir, n_set=None, seed=seed, overwrite=True)
+    fm.test_train_valid_split_list(im_list, im_list, ds_filelist_dir, n_set=None, seed=seed, overwrite=False)
 
 
     # Get the lists of files
-    test_img_list = fm.read_file_list(os.path.join(ds_filelist_dir, 'test_img_2025.txt'))
+    test_img_list = fm.read_file_list(os.path.join(ds_filelist_dir, f'test_img_{seed}.txt'))
     test_mask_list = test_img_list.copy()
-    train_img_list = fm.read_file_list(os.path.join(ds_filelist_dir, 'train_img_2025.txt'))
+    train_img_list = fm.read_file_list(os.path.join(ds_filelist_dir, f'train_img_{seed}.txt'))
     train_mask_list = train_img_list.copy()
-    valid_img_list = fm.read_file_list(os.path.join(ds_filelist_dir, 'valid_img_2025.txt'))
+    valid_img_list = fm.read_file_list(os.path.join(ds_filelist_dir, f'valid_img_{seed}.txt'))
     valid_mask_list = valid_img_list.copy()
 
     # Add the full paths
@@ -62,16 +63,16 @@ def main():
     # create model
     model = solar_model.SolarModel("FPN", "resnext50_32x4d", in_channels=3, t_max=tmax)
 
-    if load and os.path.exists(r".\lightning_logs\version_0\checkpoints"):
+    if load and os.path.exists(rf".\lightning_logs\version_{ver}\checkpoints"):
         import glob
-        fn = glob.glob(os.path.join(r".\lightning_logs\version_0\checkpoints", "*.ckpt"))[-1]
+        fn = glob.glob(os.path.join(rf".\lightning_logs\version_{ver}\checkpoints", "*.ckpt"))[-1]
         model = solar_model.SolarModel.load_from_checkpoint(fn)
     else:
         solar_model.fit(model, train_ds, valid_ds, batch_size, epochs)
 
     evaluate.evaluate(model, valid_ds, test_ds, batch_size)
 
-    evaluate.metrics_plot(r".\lightning_logs\version_0\metrics.csv")
+    evaluate.metrics_plot(rf".\lightning_logs\version_{ver}\metrics.csv")
 
     evaluate.plot_test_frames(model, test_ds)
 
