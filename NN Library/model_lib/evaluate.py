@@ -32,7 +32,7 @@ def metrics_plot(fn):
     data = data.groupby(data['epoch']).first()
 
     plt.plot(data.index, data['valid_per_image_iou'], label='Validation per image IoU')
-    plt.plot(data.index, data['train_per_image_iou'], label='Training dataset IoU')
+    plt.plot(data.index, data['train_per_image_iou'], label='Training per image IoU')
     plt.legend()
     plt.show()
 

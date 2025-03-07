@@ -167,6 +167,32 @@ class SolarModel(pl.LightningModule):
         }
 
 
+class SolarModel4Chan(SolarModel):
+    def __init__(self, arch, encoder_name, in_channels, t_max, **kwargs):
+        pl.LightningModule.__init__(self)
+        self.T_MAX = t_max
+        self.model = smp.create_model(
+            arch,
+            encoder_name=encoder_name,
+            in_channels=in_channels,
+            classes=1,
+            **kwargs
+        )
+        self.save_hyperparameters()
+
+        # Manually setting, because we don't have it in the model
+        self.register_buffer("std", torch.tensor([0.485, 0.456, 0.406, 0.406]).view(1, in_channels, 1, 1))
+        self.register_buffer("mean", torch.tensor([0.229, 0.224, 0.225, 0.225]).view(1, in_channels, 1, 1))
+
+        # for image segmentation dice loss could be the best first choice
+        self.loss_fn = smp.losses.DiceLoss(smp.losses.BINARY_MODE, from_logits=True)
+
+        # initialize step metrics
+        self.training_step_outputs = []
+        self.validation_step_outputs = []
+        self.test_step_outputs = []
+
+
 def fit(model, train_ds, valid_ds, batch, epochs):
     """
     Perform the fitting of the model
