@@ -9,7 +9,7 @@
 - Automatically set by default, but the neural networks are currently using different encoders for four and three channel images
 - The Neural Networks for multichannel imgs can be found in the NN Library directory. The ```del_channel``` Neural Network is used to delete a channel from an RGBA img. The ```ir``` Neural Network is used for four channel RGBA imgs.
 
-
 ## Installing Pytorch
 Use command from here to set up locally
 https://pytorch.org/get-started/locally/
+
